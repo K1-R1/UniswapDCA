@@ -27,6 +27,7 @@ interface IUniswapV2Router02 {
 contract UNIDCA {
     IREWARD public rewardToken;
     IUNIOracle public priceOracle;
+    IUniswapV2Router02 public uniswapV2Router02;
 
     struct userAccount {
         uint256 ethBalance;
@@ -41,9 +42,14 @@ contract UNIDCA {
 
     uint256 public userCounter;
 
-    constructor(address _rewardToken, address _priceOracle) {
+    constructor(
+        address _rewardToken,
+        address _priceOracle,
+        address _uniswapV2Router02
+    ) {
         rewardToken = IREWARD(_rewardToken);
         priceOracle = IUNIOracle(_priceOracle);
+        uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
     }
 
     function beginDCA(uint256 _weeks) external payable {
