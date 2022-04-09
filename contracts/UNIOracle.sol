@@ -55,23 +55,26 @@ contract ExampleOracleSimple {
         uint32 timeElapsed = blockTimestamp - blockTimestampLast; // overflow is desired
 
         // ensure that at least one full period has passed since the last update
-        require(
-            timeElapsed >= PERIOD,
-            "ExampleOracleSimple: PERIOD_NOT_ELAPSED"
-        );
+        // require(
+        //     timeElapsed >= PERIOD,
+        //     "ExampleOracleSimple: PERIOD_NOT_ELAPSED"
+        // );
 
-        // overflow is desired, casting never truncates
-        // cumulative price is in (uq112x112 price * seconds) units so we simply wrap it after division by time elapsed
-        price0Average = FixedPoint.uq112x112(
-            uint224((price0Cumulative - price0CumulativeLast) / timeElapsed)
-        );
-        price1Average = FixedPoint.uq112x112(
-            uint224((price1Cumulative - price1CumulativeLast) / timeElapsed)
-        );
+        // No need to revert, simply do nothing if not enough time has passed
+        if (timeElapsed >= PERIOD) {
+            // overflow is desired, casting never truncates
+            // cumulative price is in (uq112x112 price * seconds) units so we simply wrap it after division by time elapsed
+            price0Average = FixedPoint.uq112x112(
+                uint224((price0Cumulative - price0CumulativeLast) / timeElapsed)
+            );
+            price1Average = FixedPoint.uq112x112(
+                uint224((price1Cumulative - price1CumulativeLast) / timeElapsed)
+            );
 
-        price0CumulativeLast = price0Cumulative;
-        price1CumulativeLast = price1Cumulative;
-        blockTimestampLast = blockTimestamp;
+            price0CumulativeLast = price0Cumulative;
+            price1CumulativeLast = price1Cumulative;
+            blockTimestampLast = blockTimestamp;
+        }
     }
 
     // note this will always return 0 before update has been called successfully for the first time.

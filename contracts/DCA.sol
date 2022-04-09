@@ -22,12 +22,17 @@ interface IUniswapV2Router02 {
         address to,
         uint256 deadline
     ) external payable returns (uint256[] memory amounts);
+
+    function WETH() external pure returns (address);
 }
 
 contract UNIDCA {
     IREWARD public rewardToken;
     IUNIOracle public priceOracle;
     IUniswapV2Router02 public uniswapV2Router02;
+
+    address public wethAddress;
+    address public uniAddress;
 
     struct userAccount {
         uint256 ethBalance;
@@ -45,11 +50,14 @@ contract UNIDCA {
     constructor(
         address _rewardToken,
         address _priceOracle,
-        address _uniswapV2Router02
+        address _uniswapV2Router02,
+        address _uniAddress
     ) {
         rewardToken = IREWARD(_rewardToken);
         priceOracle = IUNIOracle(_priceOracle);
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
+        wethAddress = uniswapV2Router02.WETH();
+        uniAddress = _uniAddress;
     }
 
     function beginDCA(uint256 _weeks) external payable {
@@ -76,20 +84,43 @@ contract UNIDCA {
     }
 
     function swap() public {
-        /**
-        if now > timestamp of last trade + 1 week
-            market sell ETH for UNI
-                using oracle
-            send UNI to user
-            update user account
-                add to REWARD balance
-            check if user's DCA is complete
-                trigger complete func
-         */
         require(
             block.timestamp >=
                 (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks),
             "UNIDCA error: 1 week must have passed since last swap"
         );
+
+        uint256 ethValue = addressToUserAccount[msg.sender].ethValuePerWeek;
+
+        address[] memory path = new address[](2);
+        path[0] = wethAddress;
+        path[1] = uniAddress;
+
+        addressToUserAccount[msg.sender].ethBalance -= ethValue;
+        addressToUserAccount[msg.sender].rewardBalance += 1;
+        addressToUserAccount[msg.sender].currentWeek += 1;
+        addressToUserAccount[msg.sender].lastSwapTimestamp = block.timestamp;
+
+        bool completedDCA = false;
+        if (
+            addressToUserAccount[msg.sender].currentWeek ==
+            addressToUserAccount[msg.sender].totalWeeks
+        ) {
+            completedDCA = true;
+        }
+
+        priceOracle.update();
+        uint256 amountOut = priceOracle.consult(wethAddress, ethValue);
+
+        uniswapV2Router02.swapExactETHForTokens{value: ethValue}(
+            amountOut,
+            path,
+            msg.sender,
+            block.timestamp
+        );
+
+        if (completedDCA) {
+            completeDCA();
+        }
     }
 }
