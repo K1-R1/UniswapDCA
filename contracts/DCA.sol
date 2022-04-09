@@ -15,4 +15,12 @@ interface IUNIOracle {
         returns (uint256 amountOut);
 }
 
-contract
+contract UNIDCA {
+    IREWARD public rewardToken;
+    IUNIOracle public priceOracle;
+
+    constructor(address _rewardToken, address _priceOracle) {
+        rewardToken = IREWARD(_rewardToken);
+        priceOracle = IUNIOracle(_priceOracle);
+    }
+}
