@@ -120,7 +120,9 @@ contract UNIDCA {
         );
 
         if (completedDCA) {
-            completeDCA();
+            _completeDCA();
         }
     }
+
+    function _completeDCA() private {}
 }
