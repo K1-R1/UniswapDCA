@@ -15,6 +15,15 @@ interface IUNIOracle {
         returns (uint256 amountOut);
 }
 
+interface IUniswapV2Router02 {
+    function swapExactETHForTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256[] memory amounts);
+}
+
 contract UNIDCA {
     IREWARD public rewardToken;
     IUNIOracle public priceOracle;
@@ -38,11 +47,7 @@ contract UNIDCA {
     }
 
     function beginDCA(uint256 _weeks) external payable {
-        //reentrancy?
-        /**
-       
-        makes first swap
-        */
+        //reentrancy check?
         require(
             (msg.value / _weeks) >= 0.01 ether,
             "UNIDCA error: Minimum swap value in ether is 0.01, reduce number of weeks or increase ETH deposit"
@@ -61,5 +66,24 @@ contract UNIDCA {
         });
 
         swap();
+        //event
+    }
+
+    function swap() public {
+        /**
+        if now > timestamp of last trade + 1 week
+            market sell ETH for UNI
+                using oracle
+            send UNI to user
+            update user account
+                add to REWARD balance
+            check if user's DCA is complete
+                trigger complete func
+         */
+        require(
+            block.timestamp >=
+                (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks),
+            "UNIDCA error: 1 week must have passed since last swap"
+        );
     }
 }

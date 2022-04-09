@@ -30,7 +30,7 @@ deposit
 swap
     if now > timestamp of last trade + 1 week
         market sell ETH for UNI
-            using flash swap?
+            using oracle
         send UNI to user
         update user account
             add to REWARD balance
