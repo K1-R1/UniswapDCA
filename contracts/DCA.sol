@@ -140,17 +140,17 @@ contract UNIDCA {
         //event
     }
 
-    // function weeksRemaining() external view returns (uint256) {
-    //     return (addressToUserAccount[msg.sender].totalWeeks -
-    //         addressToUserAccount[msg.sender].currentWeek);
-    // }
+    function weeksRemaining() external view returns (uint256) {
+        return (addressToUserAccount[msg.sender].totalWeeks -
+            addressToUserAccount[msg.sender].currentWeek);
+    }
 
-    // function swapAvailable() external view returns (bool) {
-    //     return (block.timestamp >=
-    //         (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks));
-    // }
+    function swapAvailable() external view returns (bool) {
+        return (block.timestamp >=
+            (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks));
+    }
 
-    // function rewardAccrued() external view returns (uint256) {
-    //     return addressToUserAccount[msg.sender].rewardBalance;
+    function rewardAccrued() external view returns (uint256) {
+        return addressToUserAccount[msg.sender].rewardBalance;
     }
 }
