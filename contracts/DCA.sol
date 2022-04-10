@@ -150,7 +150,7 @@ contract UNIDCA {
             (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks));
     }
 
-    // function rewardAccrued() external view returns (uint256) {
-    //     return addressToUserAccount[msg.sender].rewardBalance;
+    function rewardAccrued() external view returns (uint256) {
+        return addressToUserAccount[msg.sender].rewardBalance;
     }
 }
