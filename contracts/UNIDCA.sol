@@ -173,9 +173,10 @@ contract UNIDCA {
 
         priceOracle.update();
         uint256 amountOut = priceOracle.consult(wethAddress, ethValue);
+        uint256 minAmountOut = amountOut - (amountOut / 100);
 
         uniswapV2Router02.swapExactETHForTokens{value: ethValue}(
-            amountOut,
+            minAmountOut,
             path,
             msg.sender,
             block.timestamp
