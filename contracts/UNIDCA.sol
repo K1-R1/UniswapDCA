@@ -32,20 +32,21 @@ interface IUniswapV2Router02 {
 /**
  * @title A DCA contract for UNI/ETH
  * @author Kyran Rawlinson
- * @dev DCA contract to allow spaced swaps of ETH to UNI in specified
- * amounts once a week.
+ * @dev DCA contract to receive a one-time paymnet of ETH, and allow
+ * spaced swaps of ETH to UNI in specified amounts once a week.
  *
  * This behaviour is incentivised with REWARD tokens which are designated
  * to the user after each swap, but are only sent to the user upon the completion
  * of the DCA over the pre-specified period of weeks.
  * The user also receives any unspent ETH upon completion.
  *
- * The swaps resist price manipulation utilising a Uniswap TWAP oracle.
+ * The weekly swaps are 'market sells' of ETH into UNI, and resist price
+ * manipulation utilising a Uniswap TWAP oracle.
  *
  * The user can cancel their DCA 'account' at any time, receiving any unspect ETH,
  * however they do not receive any REWARD tokens designated to them.
  *
- * This contract is the owner, and holds the initial supply of REWARD tokens
+ * This contract is the owner, and holds the initial supply of, REWARD.
  */
 contract UNIDCA {
     IREWARD public rewardToken;
