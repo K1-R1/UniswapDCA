@@ -173,7 +173,9 @@ contract UNIDCA {
 
         priceOracle.update();
         uint256 amountOut = priceOracle.consult(wethAddress, ethValue);
-        uint256 minAmountOut = amountOut - (amountOut / 100);
+        //ensure minimum amount of UNI received is within 0.5% of expected
+        //amount from TWAP oracle
+        uint256 minAmountOut = amountOut - (amountOut / 200);
 
         uniswapV2Router02.swapExactETHForTokens{value: ethValue}(
             minAmountOut,
