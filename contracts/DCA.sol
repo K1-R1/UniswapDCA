@@ -52,6 +52,11 @@ contract UNIDCA {
         uint256 totalWeeks,
         uint256 ethValuePerWeek
     );
+    event SwapCompleted(
+        address indexed user,
+        uint256 ethValueOfSwap,
+        uint256 weeksRemaining
+    );
 
     constructor(
         address _rewardToken,
@@ -119,7 +124,7 @@ contract UNIDCA {
             msg.sender,
             block.timestamp
         );
-        //event
+        emit SwapCompleted(msg.sender, ethValue, weeksRemaining());
 
         if (
             addressToUserAccount[msg.sender].currentWeek ==
