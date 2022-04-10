@@ -1,5 +1,7 @@
 # UniswapDCA
 
+## Challenge:
+
 Create a smart contract which helps users execute a dollar-cost averaging approach to investing
 in a single ERC20 token with ether. The contract should:
 
