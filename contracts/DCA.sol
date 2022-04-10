@@ -45,8 +45,6 @@ contract UNIDCA {
 
     mapping(address => userAccount) public addressToUserAccount;
 
-    uint256 public userCounter;
-
     event DCABegun(
         address indexed user,
         uint256 totalWeeks,
