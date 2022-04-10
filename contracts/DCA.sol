@@ -81,7 +81,7 @@ contract UNIDCA {
 
     function beginDCA(uint256 _weeks) external payable {
         require(
-            (msg.value / _weeks) >= 0.01 ether,
+            msg.value > 0 && (msg.value / _weeks) >= 0.01 ether,
             "UNIDCA error: Minimum swap value in ether is 0.01, reduce number of weeks or increase ETH deposit"
         );
         require(
