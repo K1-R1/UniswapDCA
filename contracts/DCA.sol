@@ -125,5 +125,32 @@ contract UNIDCA {
             msg.sender,
             addressToUserAccount[msg.sender].rewardBalance * 10**18
         );
+        //event
+        closeAccount();
+    }
+
+    function closeAccount() public {
+        uint256 ethRefund = addressToUserAccount[msg.sender].ethBalance;
+        delete addressToUserAccount[msg.sender];
+
+        if (ethRefund > 0) {
+            (bool success, ) = address(msg.sender).call{value: ethRefund}("");
+            require(success, "UNIDCA error: Failed to send Ether refund");
+        }
+        //event
+    }
+
+    // function weeksRemaining() external view returns (uint256) {
+    //     return (addressToUserAccount[msg.sender].totalWeeks -
+    //         addressToUserAccount[msg.sender].currentWeek);
+    // }
+
+    // function swapAvailable() external view returns (bool) {
+    //     return (block.timestamp >=
+    //         (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks));
+    // }
+
+    // function rewardAccrued() external view returns (uint256) {
+    //     return addressToUserAccount[msg.sender].rewardBalance;
     }
 }
