@@ -229,6 +229,9 @@ contract UNIDCA {
             addressToUserAccount[msg.sender].currentWeek);
     }
 
+    /**
+     * @dev Returns true if a week has passed since user's last swap occurred.
+     */
     function swapAvailable() external view hasActiveAccount returns (bool) {
         return (block.timestamp >=
             (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks));
