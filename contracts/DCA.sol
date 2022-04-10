@@ -43,7 +43,7 @@ contract UNIDCA {
         uint256 lastSwapTimestamp;
     }
 
-    mapping(address => userAccount) public addressToUserAccount; //only one account
+    mapping(address => userAccount) public addressToUserAccount;
 
     uint256 public userCounter;
 
@@ -101,14 +101,6 @@ contract UNIDCA {
         addressToUserAccount[msg.sender].currentWeek += 1;
         addressToUserAccount[msg.sender].lastSwapTimestamp = block.timestamp;
 
-        bool completedDCA = false;
-        if (
-            addressToUserAccount[msg.sender].currentWeek ==
-            addressToUserAccount[msg.sender].totalWeeks
-        ) {
-            completedDCA = true;
-        }
-
         priceOracle.update();
         uint256 amountOut = priceOracle.consult(wethAddress, ethValue);
 
@@ -118,11 +110,20 @@ contract UNIDCA {
             msg.sender,
             block.timestamp
         );
+        //event
 
-        if (completedDCA) {
+        if (
+            addressToUserAccount[msg.sender].currentWeek ==
+            addressToUserAccount[msg.sender].totalWeeks
+        ) {
             _completeDCA();
         }
     }
 
-    function _completeDCA() private {}
+    function _completeDCA() private {
+        rewardToken.transfer(
+            msg.sender,
+            addressToUserAccount[msg.sender].rewardBalance * 10**18
+        );
+    }
 }
