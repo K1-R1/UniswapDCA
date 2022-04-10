@@ -237,6 +237,10 @@ contract UNIDCA {
             (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks));
     }
 
+    /**
+     * @dev Returns quantity of REWARD tokens the user will
+     * receive upon completion of DCA.
+     */
     function rewardAccrued() public view hasActiveAccount returns (uint256) {
         return addressToUserAccount[msg.sender].rewardBalance;
     }
