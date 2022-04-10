@@ -208,8 +208,8 @@ contract UNIDCA {
     }
 
     /**
-     * @dev Deletes user's account, and sends any unpsent ETH
-     * in their balance back to them.
+     * @dev Deletes user's account, and refunds any unpsent ETH
+     * in their balance.
      */
     function closeAccount() public hasActiveAccount {
         uint256 ethRefund = addressToUserAccount[msg.sender].ethBalance;
