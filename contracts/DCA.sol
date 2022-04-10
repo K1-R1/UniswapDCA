@@ -47,6 +47,12 @@ contract UNIDCA {
 
     uint256 public userCounter;
 
+    event DCABegun(
+        address indexed user,
+        uint256 totalWeeks,
+        uint256 ethValuePerWeek
+    );
+
     constructor(
         address _rewardToken,
         address _priceOracle,
@@ -61,7 +67,6 @@ contract UNIDCA {
     }
 
     function beginDCA(uint256 _weeks) external payable {
-        //reentrancy check?
         require(
             (msg.value / _weeks) >= 0.01 ether,
             "UNIDCA error: Minimum swap value in ether is 0.01, reduce number of weeks or increase ETH deposit"
@@ -80,7 +85,11 @@ contract UNIDCA {
         });
 
         swap();
-        //event
+        emit DCABegun(
+            msg.sender,
+            _weeks,
+            addressToUserAccount[msg.sender].ethValuePerWeek
+        );
     }
 
     function swap() public {
@@ -134,7 +143,7 @@ contract UNIDCA {
         delete addressToUserAccount[msg.sender];
 
         if (ethRefund > 0) {
-            (bool success, ) = address(msg.sender).call{value: ethRefund}("");
+            (bool success, ) = msg.sender.call{value: ethRefund}("");
             require(success, "UNIDCA error: Failed to send Ether refund");
         }
         //event
