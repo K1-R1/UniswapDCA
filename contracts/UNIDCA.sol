@@ -204,6 +204,10 @@ contract UNIDCA {
         closeAccount();
     }
 
+    /**
+     * @dev Deletes user's account, and sends any unpsent ETH
+     * in their balance back to them.
+     */
     function closeAccount() public hasActiveAccount {
         uint256 ethRefund = addressToUserAccount[msg.sender].ethBalance;
         delete addressToUserAccount[msg.sender];
@@ -216,6 +220,10 @@ contract UNIDCA {
         emit AccountClosed(msg.sender, ethRefund);
     }
 
+    /**
+     * @dev Returns number of weeks remaining in order to complete
+     * DCA and get rewards.
+     */
     function weeksRemaining() public view hasActiveAccount returns (uint256) {
         return (addressToUserAccount[msg.sender].totalWeeks -
             addressToUserAccount[msg.sender].currentWeek);
