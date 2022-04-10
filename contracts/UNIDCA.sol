@@ -2,10 +2,12 @@
 
 pragma solidity ^0.8.4;
 
+//Interface for REWARD token, that incentivises DCA-ing
 interface IREWARD {
     function transfer(address to, uint256 amount) external returns (bool);
 }
 
+//Interafce for the Uniswap TWAP oracle
 interface IUNIOracle {
     function update() external;
 
@@ -15,6 +17,7 @@ interface IUNIOracle {
         returns (uint256 amountOut);
 }
 
+//Interace for UniswapV2Router02
 interface IUniswapV2Router02 {
     function swapExactETHForTokens(
         uint256 amountOutMin,
@@ -26,6 +29,24 @@ interface IUniswapV2Router02 {
     function WETH() external pure returns (address);
 }
 
+/**
+ * @title A DCA contract for UNI/ETH
+ * @author Kyran Rawlinson
+ * @dev DCA contract to allow spaced swaps of ETH to UNI in specified
+ * amounts once a week.
+ *
+ * This behaviour is incentivised with REWARD tokens which are designated
+ * to the user after each swap, but are only sent to the user upon the completion
+ * of the DCA over the pre-specified period of weeks.
+ * The user also receives any unspent ETH upon completion.
+ *
+ * The swaps resist price manipulation utilising a Uniswap TWAP oracle.
+ *
+ * The user can cancel their DCA 'account' at any time, receiving any unspect ETH,
+ * however they do not receive any REWARD tokens designated to them.
+ *
+ * This contract is the owner, and holds the initial supply of REWARD tokens
+ */
 contract UNIDCA {
     IREWARD public rewardToken;
     IUNIOracle public priceOracle;
@@ -71,6 +92,9 @@ contract UNIDCA {
         uniAddress = _uniAddress;
     }
 
+    /**
+     * @dev Checks if msg.sender has an active account
+     */
     modifier hasActiveAccount() {
         require(
             addressToUserAccount[msg.sender].totalWeeks >= 2,
@@ -79,6 +103,11 @@ contract UNIDCA {
         _;
     }
 
+    /**
+     * @dev User sends ETH and specifies number of weeks over which to DCA,
+     * if requirements are passed; the user's account is setup
+     * and the initial swap is triggered.
+     */
     function beginDCA(uint256 _weeks) external payable {
         require(
             msg.value > 0 && (msg.value / _weeks) >= 0.01 ether,
@@ -106,6 +135,21 @@ contract UNIDCA {
         );
     }
 
+    /**
+     * @dev If the user has an active account, and
+     * at least a week has passed since previous swap
+     * (or this is the first swap during 'beginDCA');
+     * then the TWAP oracle is consulted, and the value it
+     * returns is then used in the 'market sell' of ETH into
+     * UNI in order to protect against price manipulation.
+     *
+     * If succesulful; the user's account is updated and
+     * they are desinated 1 REWARD token.
+     *
+     * If the swap was the last in the number of swaps
+     * specified when the user 'signed up',
+     * then the completeDCA function is triggered.
+     */
     function swap() public hasActiveAccount {
         require(
             block.timestamp >=
@@ -144,6 +188,11 @@ contract UNIDCA {
         }
     }
 
+    /**
+     * @dev Only called within the swap function;
+     * sends designated quantity of reward tokens to user,
+     * and trigger closeAccount.
+     */
     function _completeDCA() private {
         rewardToken.transfer(
             msg.sender,
