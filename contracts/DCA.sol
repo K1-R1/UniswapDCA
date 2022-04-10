@@ -57,6 +57,8 @@ contract UNIDCA {
         uint256 ethValueOfSwap,
         uint256 weeksRemaining
     );
+    event DCACompleted(address indexed user, uint256 rewardAccrued);
+    event AccountClosed(address indexed user, uint256 ethRefundAmount);
 
     constructor(
         address _rewardToken,
@@ -69,6 +71,14 @@ contract UNIDCA {
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         wethAddress = uniswapV2Router02.WETH();
         uniAddress = _uniAddress;
+    }
+
+    modifier hasActiveAccount() {
+        require(
+            addressToUserAccount[msg.sender].totalWeeks >= 2,
+            "UNIDCA error: Please create an account via beginDCA"
+        );
+        _;
     }
 
     function beginDCA(uint256 _weeks) external payable {
@@ -90,6 +100,7 @@ contract UNIDCA {
         });
 
         swap();
+
         emit DCABegun(
             msg.sender,
             _weeks,
@@ -97,7 +108,7 @@ contract UNIDCA {
         );
     }
 
-    function swap() public {
+    function swap() public hasActiveAccount {
         require(
             block.timestamp >=
                 (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks),
@@ -124,6 +135,7 @@ contract UNIDCA {
             msg.sender,
             block.timestamp
         );
+
         emit SwapCompleted(msg.sender, ethValue, weeksRemaining());
 
         if (
@@ -139,11 +151,13 @@ contract UNIDCA {
             msg.sender,
             addressToUserAccount[msg.sender].rewardBalance * 10**18
         );
-        //event
+
+        emit DCACompleted(msg.sender, rewardAccrued());
+
         closeAccount();
     }
 
-    function closeAccount() public {
+    function closeAccount() public hasActiveAccount {
         uint256 ethRefund = addressToUserAccount[msg.sender].ethBalance;
         delete addressToUserAccount[msg.sender];
 
@@ -151,20 +165,21 @@ contract UNIDCA {
             (bool success, ) = msg.sender.call{value: ethRefund}("");
             require(success, "UNIDCA error: Failed to send Ether refund");
         }
-        //event
+
+        emit AccountClosed(msg.sender, ethRefund);
     }
 
-    function weeksRemaining() external view returns (uint256) {
+    function weeksRemaining() public view hasActiveAccount returns (uint256) {
         return (addressToUserAccount[msg.sender].totalWeeks -
             addressToUserAccount[msg.sender].currentWeek);
     }
 
-    function swapAvailable() external view returns (bool) {
+    function swapAvailable() external view hasActiveAccount returns (bool) {
         return (block.timestamp >=
             (addressToUserAccount[msg.sender].lastSwapTimestamp + 1 weeks));
     }
 
-    function rewardAccrued() external view returns (uint256) {
+    function rewardAccrued() public view hasActiveAccount returns (uint256) {
         return addressToUserAccount[msg.sender].rewardBalance;
     }
 }
