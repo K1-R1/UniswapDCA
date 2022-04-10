@@ -94,7 +94,9 @@ contract UNIDCA {
     }
 
     /**
-     * @dev Checks if msg.sender has an active account
+     * @dev Checks if msg.sender has an active account;
+     * if totalWeeks is not at least 2, then account has
+     * not been set up in beginDCA.
      */
     modifier hasActiveAccount() {
         require(
@@ -139,8 +141,8 @@ contract UNIDCA {
     /**
      * @dev If the user has an active account, and
      * at least a week has passed since previous swap
-     * (or this is the first swap during 'beginDCA');
-     * then the TWAP oracle is consulted, and the value it
+     * (or this is the first swap during beginDCA);
+     * then the TWAP oracle is updated and consulted, and the value it
      * returns is then used in the 'market sell' of ETH into
      * UNI in order to protect against price manipulation.
      *
@@ -192,7 +194,7 @@ contract UNIDCA {
     /**
      * @dev Only called within the swap function;
      * sends designated quantity of reward tokens to user,
-     * and trigger closeAccount.
+     * and triggers closeAccount.
      */
     function _completeDCA() private {
         rewardToken.transfer(
