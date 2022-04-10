@@ -14,14 +14,12 @@ def deploy():
         {'from': account},
         publish_source=True
     )
-    print(uni_oracle.address)
 
     #deploy REWARD token
     reward_token = REWARD.deploy(
         {'from': account},
         publish_source=True
     )
-    print(reward_token.address)
 
     #deploy DCA
     uni_dca = UNIDCA.deploy(
@@ -39,7 +37,7 @@ def deploy():
         {'from': account}
     ).wait(1)
 
-    # UNIOracle deployed at: 0x01e6884511D0993bf097bee8DA6DDA21BEae6f4d
-    # REWARD deployed at: 0x2b5094A4286Dc094A9581BC1fc8f272b2a2a85c1
-    # UNIDCA deployed at: 0x3eB002DD8B2b30843db048eD403219022007D1AA
+    # UNIOracle deployed at: 0xE03A30B6518F0b2D4FA15B1a72B0C4783989Bd49
+    # REWARD deployed at: 0xFf4A9a3895624C21fDa12B02918B8c6A250f07F4
+    # UNIDCA deployed at: 0xC542D6cDb9c29faBe30d6dC4BB7c91ba3E7d8E3e
     
