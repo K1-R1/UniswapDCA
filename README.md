@@ -13,3 +13,8 @@ in a single ERC20 token with ether. The contract should:
 3. Conversions should happen via Uniswap V2 and be executed as “market sells” of ether for
 the ERC20 token
 - a. Bonus: resists price manipulation
+
+## Solution comprised of:
+- UNIDCA.sol
+- UNIOracle.sol
+- REWARD.sol
